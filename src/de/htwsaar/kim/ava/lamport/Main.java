@@ -4,6 +4,7 @@ import de.htwsaar.kim.ava.lamport.file.LamportFile;
 import de.htwsaar.kim.ava.lamport.mutex.DummySemaphore;
 import de.htwsaar.kim.ava.lamport.mutex.InterProcInterface;
 import de.htwsaar.kim.ava.lamport.process.LamportProcess;
+import de.htwsaar.kim.ava.lamport.process.ProcessManager;
 
 import java.io.IOException;
 
@@ -12,16 +13,16 @@ import java.io.IOException;
  */
 public class Main {
 
-    
+
     public static void main(String... args) throws IOException {
         LamportFile lmpFile = new LamportFile("file.txt");
-        InterProcInterface interProcInterface = new DummySemaphore();
+        ProcessManager manager = new ProcessManager();
 
 
-        LamportProcess p1 = new LamportProcess(lmpFile, interProcInterface, 1);
-        LamportProcess p2 = new LamportProcess(lmpFile, interProcInterface, 2);
-        LamportProcess p3 = new LamportProcess(lmpFile, interProcInterface, 3);
-        LamportProcess p4 = new LamportProcess(lmpFile, interProcInterface, 4);
+        LamportProcess p1 = new LamportProcess(lmpFile, manager, 1);
+        LamportProcess p2 = new LamportProcess(lmpFile, manager, 2);
+        LamportProcess p3 = new LamportProcess(lmpFile, manager, 3);
+        LamportProcess p4 = new LamportProcess(lmpFile, manager, 4);
 
         Thread t1 = new Thread(p1);
         Thread t2 = new Thread(p2);
