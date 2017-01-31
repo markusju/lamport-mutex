@@ -1,4 +1,4 @@
-package de.htwsaar.kim.ava.lamport;
+package de.htwsaar.kim.ava.lamport.file;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +27,7 @@ public class LamportFile {
 
     private void initFile() throws IOException {
         randomAccessFile.seek(0);
-        randomAccessFile.writeBytes("000001000\n");
+        randomAccessFile.writeBytes("000000000\n");
     }
 
 
@@ -38,6 +38,10 @@ public class LamportFile {
 
     public void incrementValue() throws IOException {
         writeNumber(readNumber()+1);
+    }
+
+    public int getValue() throws IOException {
+        return readNumber();
     }
 
 
@@ -60,6 +64,7 @@ public class LamportFile {
     }
 
     public void decrementValue() throws IOException {
+        if (readNumber() <= 0) return;
         writeNumber(readNumber()-1);
     }
 
