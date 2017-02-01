@@ -15,7 +15,7 @@ import java.util.LinkedList;
 public class ACK implements Command {
     @Override
     public String getMethodName() {
-        return null;
+        return "ACK";
     }
 
     @Override

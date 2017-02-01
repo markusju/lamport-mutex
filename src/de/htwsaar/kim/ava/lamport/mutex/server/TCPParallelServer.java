@@ -20,7 +20,7 @@ public class TCPParallelServer extends Thread {
 
     public static final int MAX_NUM_THREADS = 20;
     public static final int DEFAULT_PORT = 4322;
-    private static final int DEFAULT_TIMEOUT = 1000;
+    private static final int DEFAULT_TIMEOUT = 10000;
     private static final String THREAD_NAME = "ServerThread";
 
     private int port = DEFAULT_PORT;
@@ -48,7 +48,6 @@ public class TCPParallelServer extends Thread {
     public void run() {
         try
         {
-
             // Erzeugen der Socket/binden an Port/Wartestellung
             socket = new ServerSocket(port, 10);
             changeServerStatus(ServerStatus.RUNNING);

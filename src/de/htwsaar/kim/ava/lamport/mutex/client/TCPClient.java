@@ -40,10 +40,15 @@ public class TCPClient {
     public void sendRequest(String host, int port, Request request) throws IOException {
         connect(host, port);
 
-        lamportMutex.incrementTimeStamp();
+
 
         request.addParameter("SRC", String.valueOf(lamportMutex.getId()));
-        request.addParameter("TIMESTAMP", String.valueOf(lamportMutex.getCurrentTimestamp()));
+
+        if (!request.getParameters().containsKey("TIMESTAMP")) {
+            lamportMutex.incrementTimeStamp();
+            request.addParameter("TIMESTAMP", String.valueOf(lamportMutex.getCurrentTimestamp()));
+        }
+
         avaNodeClientProtocol.putLine(request.toProtString());
         disconnect();
     }

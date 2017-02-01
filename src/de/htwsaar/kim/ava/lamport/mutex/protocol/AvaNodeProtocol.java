@@ -23,6 +23,7 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
     private Request request;
     private int source;
     private int timestamp;
+    private int timestampNodeBefore;
 
     private LamportMutex lamportMutex;
 
@@ -50,7 +51,7 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
             throw new ClientErrorException("SRC Paramter was not supplied!");
         }
         if (!request.getParameters().containsKey("TIMESTAMP")) {
-            throw new ClientErrorException("TIMESTAMP Paramter was not supplied!");
+            throw new ClientErrorException("TIMESTAMP Parameter was not supplied!");
         }
     }
 
@@ -62,6 +63,7 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
             //Syntaktische Analyse
             request = new AvaNodeProtocolRequest(this);
 
+
             //Semantische Analyse
             Command command = Command.interpretRequest(request);
 
@@ -69,13 +71,18 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
             source = Integer.valueOf(request.getParameters().get("SRC"));
             timestamp = Integer.valueOf(request.getParameters().get("TIMESTAMP"));
 
+
+            //Log
+            lamportMutex.logger.log(Level.INFO, "Received "+request.getMethod()+" from "+source+" with t="+timestamp);
+
+
             //Process timestamp
+            timestampNodeBefore = lamportMutex.getCurrentTimestamp();
             lamportMutex.setAndIncTimeStamp(timestamp);
 
             close();
-
-
             command.execute(this);
+            postExec();
 
 
 
@@ -85,7 +92,26 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
             lamportMutex.getTcpParallelServer().mutex.release();
         }
 
+    }
 
+    private void postExec() {
+        lamportMutex.logger.log(Level.INFO, "postExec triggered");
+
+
+        if (lamportMutex.getOwn() != null) {
+            if (lamportMutex.getOwn().getStamp() < timestamp)
+                lamportMutex.counter++;
+        }
+
+
+        if (lamportMutex.getQueue().first().getProcess() == lamportMutex.getId()) {
+            if (lamportMutex.counter >= LamportMutex.PROCESSES.length-1) {
+                lamportMutex.counter = 0;
+                lamportMutex.getLock().release();
+                lamportMutex.logger.log(Level.INFO, "Lock released");
+            }
+
+        }
 
     }
 }

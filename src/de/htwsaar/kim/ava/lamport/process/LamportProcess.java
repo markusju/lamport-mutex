@@ -16,7 +16,6 @@ public class LamportProcess implements Runnable{
     private int counter;
     private LamportFile lamportFile;
     private LamportMutex lamportMutex;
-    private ProcessManager processManager;
     private boolean terminate = false;
 
     public LamportProcess(LamportFile lamportFile, int id) {

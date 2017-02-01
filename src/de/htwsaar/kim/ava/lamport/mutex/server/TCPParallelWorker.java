@@ -39,7 +39,7 @@ public class TCPParallelWorker implements Runnable {
     public void run() {
         try {
 
-            new AvaNodeProtocol(socket, lamportMutex);
+            new AvaNodeProtocol(socket, lamportMutex).run();
             socket.close();
 
         } catch (Exception e) {
