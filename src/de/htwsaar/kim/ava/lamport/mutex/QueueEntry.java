@@ -7,20 +7,20 @@ import de.htwsaar.kim.ava.lamport.process.LamportProcess;
  */
 public class QueueEntry implements Comparable{
     private Integer stamp;
-    private LamportProcess lamportProcess;
+    private Integer process;
 
 
-    public QueueEntry(int stamp, LamportProcess lamportProcess) {
+    public QueueEntry(int stamp, int process) {
         this.stamp = stamp;
-        this.lamportProcess = lamportProcess;
+        this.process = process;
     }
 
     public Integer getStamp() {
         return stamp;
     }
 
-    public LamportProcess getLamportProcess() {
-        return lamportProcess;
+    public Integer getProcess() {
+        return process;
     }
 
     @Override

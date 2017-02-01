@@ -1,81 +1,90 @@
 package de.htwsaar.kim.ava.lamport.mutex;
 
-import com.google.common.collect.TreeMultimap;
-import de.htwsaar.kim.ava.lamport.process.LamportProcess;
-import javafx.util.Pair;
+import de.htwsaar.kim.ava.lamport.mutex.client.TCPClient;
+import de.htwsaar.kim.ava.lamport.mutex.protocol.commands.ACQUIRE;
+import de.htwsaar.kim.ava.lamport.mutex.server.TCPParallelServer;
 
-import java.util.Queue;
-import java.util.TreeMap;
+import java.io.IOException;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
 
 /**
- * Created by markus on 29.01.17.
+ * Created by markus on 01.02.17.
  */
 public class LamportMutex {
-    //Queue of Requesting Process ID sorted by their timestamps
+
+    public static int[] PROCESSES = {
+            1,
+            2,
+            3,
+            4
+    };
+
+    private TCPParallelServer tcpParallelServer = new TCPParallelServer(this);
+    private TCPClient tcpClient = new TCPClient(this);
+    private int port;
+    private int id;
+
     private TreeSet<QueueEntry> queue = new TreeSet<>();
-    private int timeStamp = 0;
-    //Key-Val Liste aller Prozesse nach ID
-    private LamportProcess ownProcess;
+    private int currentTimestamp = id;
 
-    public LamportMutex(LamportProcess ownProcess) {
-        this.ownProcess = ownProcess;
+    private Semaphore lock = new Semaphore(0);
+
+
+
+    public LamportMutex(int id) {
+        this.id = id;
+        this.port = 5000+id;
+        tcpParallelServer.start();
     }
 
-    public void sendMessage(LamportProcess destination, LamportMessage message) {
-        //TimeStamp
-        timeStamp++;
-        message.setStamp(timeStamp);
-        destination.getLamportMutex().receiveMessage(ownProcess, message);
-        message.setProcessId(ownProcess.getId());
 
-    }
-    public synchronized void receiveMessage(LamportProcess source, LamportMessage message) {
-        //TimeStamp
-        int recvStamp = message.getStamp();
-        timeStamp = Integer.max(recvStamp, timeStamp);
-        ownProcess.getLogger().log(Level.INFO, "Received "+message.getType()+" from "+source.getId()+" t="+timeStamp);
-
-        switch(message.getType()) {
-            case ACQUIRE:
-                queue.add(new QueueEntry(
-                        timeStamp,
-                        source
-                ));
-                break;
-            case RELEASE:
-                break;
-        }
-
-
+    public TCPParallelServer getTcpParallelServer() {
+        return tcpParallelServer;
     }
 
-    public void acquire() {
-        queue.add(new QueueEntry(timeStamp, ownProcess));
-        for (LamportProcess lamportProcess: ownProcess.getProcessManager().getAll()) {
-            if (lamportProcess.getId() == ownProcess.getId()) continue;
+    public int getPort() {
+        return port;
+    }
 
-            sendMessage(
-                    lamportProcess,
-                    new LamportMessage(LamportMessage.LamportMessageType.ACQUIRE)
-            );
-        }
 
+    public int getId() {
+        return id;
+    }
+
+    public void acquire() throws InterruptedException, IOException {
+        requestCS();
+        lock.acquire();
     }
 
     public void release() {
 
-    }
-
-    public void terminate() {
 
     }
 
 
+    private void requestCS() throws IOException {
+        for (int el: PROCESSES) {
+            if (el == id) continue;
+            ACQUIRE.sendACQUIRE(tcpClient, "127.0.0.1", 5000+el);
+        }
+
+        queue.add(new QueueEntry(getCurrentTimestamp(), getId()));
+
+    }
 
 
 
 
+    public void incrementTimeStamp() {
+        currentTimestamp++;
+    }
+
+    public void setAndIncTimeStamp(int newValue) {
+        currentTimestamp = Integer.max(newValue, currentTimestamp)+1;
+    }
+
+    public int getCurrentTimestamp() {
+        return currentTimestamp;
+    }
 }

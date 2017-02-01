@@ -1,4 +1,4 @@
-package de.htwsaar.kim.ava.lamport.mutex;
+package de.htwsaar.kim.ava.lamport.scrap;
 
 /**
  * Created by markus on 31.01.17.

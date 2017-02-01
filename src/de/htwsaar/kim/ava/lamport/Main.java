@@ -1,8 +1,6 @@
 package de.htwsaar.kim.ava.lamport;
 
 import de.htwsaar.kim.ava.lamport.file.LamportFile;
-import de.htwsaar.kim.ava.lamport.mutex.DummySemaphore;
-import de.htwsaar.kim.ava.lamport.mutex.InterProcInterface;
 import de.htwsaar.kim.ava.lamport.process.LamportProcess;
 import de.htwsaar.kim.ava.lamport.process.ProcessManager;
 
