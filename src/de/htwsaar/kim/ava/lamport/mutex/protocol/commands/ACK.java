@@ -20,7 +20,7 @@ public class ACK implements Command {
 
     @Override
     public void execute(AvaNodeProtocol protocol) throws CommandExecutionErrorException {
-
+        protocol.getLamportMutex().counter++;
     }
 
     public static void sendACK(TCPClient tcpClient, String host, int port) throws IOException {

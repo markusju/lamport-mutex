@@ -21,10 +21,14 @@ public class ACQUIRE implements Command {
 
     @Override
     public void execute(AvaNodeProtocol protocol) throws CommandExecutionErrorException {
-        protocol.getLamportMutex().getQueue().add(new QueueEntry(
-                protocol.getLamportMutex().getCurrentTimestamp(),
-                protocol.getSource()
-        ));
+        try {
+            protocol.getLamportMutex().addToQueue(new QueueEntry(
+                    protocol.getTimestamp(),
+                    protocol.getSource()
+            ));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         try {
             ACK.sendACK(protocol.getLamportMutex().getTcpClient(),

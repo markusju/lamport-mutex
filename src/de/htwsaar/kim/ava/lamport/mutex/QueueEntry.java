@@ -26,8 +26,16 @@ public class QueueEntry implements Comparable{
     @Override
     public int compareTo(Object o) {
         if (o instanceof QueueEntry) {
-            return stamp.compareTo(((QueueEntry) o).stamp);
+            int val = stamp.compareTo(((QueueEntry) o).stamp);
+
+            if (val == 0) return process.compareTo(((QueueEntry) o).process);
+            return val;
         } else
             throw new IllegalArgumentException("Nope");
+    }
+
+    @Override
+    public String toString() {
+        return "<"+stamp+","+process+">";
     }
 }

@@ -29,7 +29,7 @@ public class TCPClient {
 
     private void connect(String host, int port) throws IOException {
         Socket socket = new Socket();
-        socket.connect(new InetSocketAddress(host, port), 5000);
+        socket.connect(new InetSocketAddress(host, port));
         avaNodeClientProtocol = new AvaNodeClientProtocol(socket);
     }
 
@@ -50,7 +50,7 @@ public class TCPClient {
         }
 
         avaNodeClientProtocol.putLine(request.toProtString());
-        disconnect();
+        //disconnect();
     }
 
 

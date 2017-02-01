@@ -32,11 +32,6 @@ public abstract class AbstractBaseProtocol implements Protocol {
 
     }
 
-    public AbstractBaseProtocol() {
-        this.bufferedReader = null;
-        this.output = null;
-        this.socket = null;
-    }
 
     /**
      * Initiate AbstractBaseProtocol.
@@ -54,6 +49,7 @@ public abstract class AbstractBaseProtocol implements Protocol {
                 new PrintWriter(
                         new OutputStreamWriter(this.output));
         printWriter.println(line);
+        //System.out.print(line);
         printWriter.flush();
     }
 

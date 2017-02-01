@@ -3,11 +3,13 @@ package de.htwsaar.kim.ava.lamport.mutex;
 import de.htwsaar.kim.ava.lamport.logging.SingleLineFormatter;
 import de.htwsaar.kim.ava.lamport.mutex.client.TCPClient;
 import de.htwsaar.kim.ava.lamport.mutex.protocol.commands.ACQUIRE;
+import de.htwsaar.kim.ava.lamport.mutex.protocol.commands.RELEASE;
 import de.htwsaar.kim.ava.lamport.mutex.server.TCPParallelServer;
 
 import java.io.IOException;
 import java.util.Queue;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -31,19 +33,20 @@ public class LamportMutex {
     private int port;
     private int id;
 
-    private TreeSet<QueueEntry> queue = new TreeSet<>();
+    private ConcurrentSkipListSet<QueueEntry> queue = new ConcurrentSkipListSet<>();
     private int currentTimestamp = 0;
     public int counter = 0;
 
     public Logger logger;
 
-    private Semaphore lock = new Semaphore(0);
+    private Semaphore lock = new Semaphore(0, true);
 
 
 
     public LamportMutex(int id) {
         this.id = id;
         this.port = 5000+id;
+        this.currentTimestamp = id;
 
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new SingleLineFormatter());
@@ -87,13 +90,23 @@ public class LamportMutex {
         lock.acquire();
     }
 
-    public void release() {
+    public void release() throws IOException, InterruptedException {
+        logger.log(Level.INFO, "Release");
+        removeProcessFromQueue(id);
+        for (int el: PROCESSES) {
+            if (el == id) continue;
+            RELEASE.sendRELEASE(tcpClient, "127.0.0.1", el+5000);
+        }
+
 
 
     }
 
     private void requestCS() throws IOException {
+        incrementTimeStamp();
         queue.add(new QueueEntry(getCurrentTimestamp(), getId()));
+
+
 
         for (int el: PROCESSES) {
             if (el == id) continue;
@@ -104,15 +117,23 @@ public class LamportMutex {
 
     }
 
-    public TreeSet<QueueEntry> getQueue() {
+    public ConcurrentSkipListSet<QueueEntry> getQueue() {
         return queue;
     }
 
-    public void removeProcessFromQueue(int id) {
+    public void addToQueue(QueueEntry queueEntry) throws InterruptedException {
+        queue.add(queueEntry);
+    }
+
+    public void removeProcessFromQueue(int id) throws InterruptedException {
+        QueueEntry toBeRemoved = null;
         for (QueueEntry entry: queue) {
             if (entry.getProcess() == id)
-                queue.remove(entry);
+                toBeRemoved = entry;
         }
+
+        if (toBeRemoved == null) return;
+        queue.remove(toBeRemoved);
     }
 
     public QueueEntry getOwn() {

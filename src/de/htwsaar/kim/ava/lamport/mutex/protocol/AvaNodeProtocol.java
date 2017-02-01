@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 /**
@@ -73,7 +74,7 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
 
 
             //Log
-            lamportMutex.logger.log(Level.INFO, "Received "+request.getMethod()+" from "+source+" with t="+timestamp);
+            lamportMutex.logger.log(Level.INFO, "Received "+request.getMethod()+" from "+source+" with t="+timestamp+" "+lamportMutex.getQueue().toString());
 
 
             //Process timestamp
@@ -95,23 +96,22 @@ public class AvaNodeProtocol extends AbstractBaseProtocol implements Runnable {
     }
 
     private void postExec() {
-        lamportMutex.logger.log(Level.INFO, "postExec triggered");
+        lamportMutex.logger.log(Level.FINE, "postExec triggered");
 
+        try {
+            if (lamportMutex.getQueue().first().getProcess() == lamportMutex.getId()) {
+                if (lamportMutex.counter >= LamportMutex.PROCESSES.length-1) {
+                    lamportMutex.logger.log(Level.INFO, lamportMutex.getQueue().toString());
+                    lamportMutex.counter = 0;
+                    lamportMutex.getLock().release();
+                    lamportMutex.logger.log(Level.INFO, "Lock released");
+                }
 
-        if (lamportMutex.getOwn() != null) {
-            if (lamportMutex.getOwn().getStamp() < timestamp)
-                lamportMutex.counter++;
-        }
-
-
-        if (lamportMutex.getQueue().first().getProcess() == lamportMutex.getId()) {
-            if (lamportMutex.counter >= LamportMutex.PROCESSES.length-1) {
-                lamportMutex.counter = 0;
-                lamportMutex.getLock().release();
-                lamportMutex.logger.log(Level.INFO, "Lock released");
             }
-
+        } catch (NoSuchElementException e) {
+            //ignore
         }
+
 
     }
 }

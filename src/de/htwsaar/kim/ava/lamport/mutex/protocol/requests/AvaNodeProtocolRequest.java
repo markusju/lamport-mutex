@@ -53,7 +53,7 @@ public class AvaNodeProtocolRequest implements Request {
 
             protocol.readLine();
         }
-        return;
+
 
     }
 

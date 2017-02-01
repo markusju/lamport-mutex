@@ -43,7 +43,7 @@ public class TCPParallelWorker implements Runnable {
             socket.close();
 
         } catch (Exception e) {
-
+            //e.printStackTrace();
 
         }
 

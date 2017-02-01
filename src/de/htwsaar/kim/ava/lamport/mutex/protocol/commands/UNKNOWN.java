@@ -11,7 +11,7 @@ public class UNKNOWN implements Command {
 
     @Override
     public String getMethodName() {
-        return null;
+        return "UNKNOWN";
     }
 
     @Override
