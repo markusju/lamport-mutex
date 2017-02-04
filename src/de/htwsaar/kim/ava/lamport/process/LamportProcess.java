@@ -21,7 +21,7 @@ public class LamportProcess implements Runnable{
     public LamportProcess(LamportFile lamportFile, int id) {
         this.lamportFile = lamportFile;
         this.id = id;
-        lamportMutex = new LamportMutex(id);
+        lamportMutex = new LamportMutex(id, this);
 
     }
 
@@ -49,7 +49,7 @@ public class LamportProcess implements Runnable{
                         counter++;
                         if (counter >= 3) {
                             terminate();
-                            //lamportMutex.terminate();
+                            lamportMutex.terminate();
                             break;
                         }
                     }

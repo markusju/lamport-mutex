@@ -4,7 +4,9 @@ import de.htwsaar.kim.ava.lamport.logging.SingleLineFormatter;
 import de.htwsaar.kim.ava.lamport.mutex.client.TCPClient;
 import de.htwsaar.kim.ava.lamport.mutex.protocol.commands.ACQUIRE;
 import de.htwsaar.kim.ava.lamport.mutex.protocol.commands.RELEASE;
+import de.htwsaar.kim.ava.lamport.mutex.protocol.commands.TERMINATE;
 import de.htwsaar.kim.ava.lamport.mutex.server.TCPParallelServer;
+import de.htwsaar.kim.ava.lamport.process.LamportProcess;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -40,13 +42,15 @@ public class LamportMutex {
     public Logger logger;
 
     private Semaphore lock = new Semaphore(0, true);
+    private LamportProcess lamportProcess;
 
 
 
-    public LamportMutex(int id) {
+    public LamportMutex(int id, LamportProcess lamportProcess) {
         this.id = id;
         this.port = 5000+id;
-        this.currentTimestamp = id;
+        this.currentTimestamp = 0;
+        this.lamportProcess = lamportProcess;
 
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new SingleLineFormatter());
@@ -81,8 +85,9 @@ public class LamportMutex {
         return lock;
     }
 
-
-
+    public LamportProcess getLamportProcess() {
+        return lamportProcess;
+    }
 
     public void acquire() throws InterruptedException, IOException {
         logger.log(Level.INFO, "Acquire");
@@ -98,8 +103,17 @@ public class LamportMutex {
             RELEASE.sendRELEASE(tcpClient, "127.0.0.1", el+5000);
         }
 
+    }
 
+    public void terminate() throws IOException {
+        int partner = id;
 
+        if (id % 2 == 0)
+            partner--;
+        else
+            partner++;
+
+        TERMINATE.startTERMINATE(getTcpClient(), "127.0.0.1", 5000+partner);
     }
 
     private void requestCS() throws IOException {

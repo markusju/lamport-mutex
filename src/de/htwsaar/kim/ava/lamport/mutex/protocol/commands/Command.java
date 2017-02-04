@@ -20,6 +20,8 @@ public interface Command {
                 return new ACQUIRE();
             case "RELEASE":
                 return new RELEASE();
+            case "TERMINATE":
+                return new TERMINATE();
             default:
                 return new UNKNOWN();
         }
