@@ -35,7 +35,6 @@ Um Zugriff auf die Ressource anzufordern sendet ein Prozess zunächst eine `ACQU
 
 *Wichtig*: Das versenden der `ACQUIRE` Nachricht an alle anderen Prozesse wird im Kontext des Lamport-Algorithmus als "atomare" Aktion betrachtet. Sprich, die übermittelte Vektorzeit muss für alle `ACQUIRE` Nachrichten gleich sein.
 
-    
     clock++
     addToQueue(own_process, clock)
     
@@ -44,17 +43,17 @@ Um Zugriff auf die Ressource anzufordern sendet ein Prozess zunächst eine `ACQU
         
 Die empfangenden Prozesse tragen die übermittelte Anfrage unter dem übermittelten TimeStamp in ihre eigenen Queues ein. Sie bestätigen die Eintragung mit einer `ACK` Nachricht an den anfragenden Prozess. Mit dieser Bestätigung wird erneut die Lamport-Zeit zwischen dem anfragenden Prozess und allen anderen synchronisiert.
 Ein Prozess kann sicher auf die gemeinsame Ressource zugreifen, wenn er von allen anderen Prozessen eine `ACK` Nachricht erhalten hat und sein eigener Eintrag am Kopf der Queue steht.
-Wenn der Prozess den Zugriff auf die gemeinsame Ressource nicht mehr benötigt gibt er sie wieder frei und signalisiert dies über das Versenden einer `RELEASE` Nachricht an alle anderen Prozesse. Die anderen Prozesse entfernen dann den Eintrag aus ihren Queues und der nächste Prozess kann Zugriff auf die freigegeben Ressource erlangen.
+Wenn der Prozess den Zugriff auf die gemeinsame Ressource nicht mehr benötigt gibt er sie wieder frei und signalisiert dies über das Versenden einer `RELEASE` Nachricht an alle anderen Prozesse. Die anderen Prozesse entfernen dann den Eintrag aus ihren Queues und der nächste Prozess kann Zugriff auf die freigegebene Ressource erlangen.
     
 ## Implementierung
 ### Getting Started
 *ava.lamport* implementiert den beschriebenen Algorithmus und demonstriert anhand eines Beispiels seine Funktionalität.
 
-Das Programm stellt *n* Prozessen den wechselseitigen Zugriff auf eine Datei zur Verfügung. Um zu Verhindern, dass es durch den konkurrierenden Zugriff auf die Datei zu Inonsiszenzen kommt, wird durch den Lamport-Algorithmus geregelt, welches Prozess auf die Datei zugreifen darf und welcher warten muss.
+Das Programm stellt *n* Prozessen den wechselseitigen Zugriff auf eine Datei zur Verfügung. Um zu Verhindern, dass es durch den konkurrierenden Zugriff auf die Datei zu Inkonsistenzen kommt, wird durch den Lamport-Algorithmus geregelt, welches Prozess auf die Datei zugreifen darf und welcher warten muss.
 
 Durch Ausführung des Programms aus der `Main` Klasse kann ein Testlauf gestartet werden.
 Das Programm startet dadurch automatisch eine als Programm-Argument übergebene gerade Anzahl an Prozessen die um den Zugriff auf die Datei konkurrieren.
-Während der Algorithmus arbeitet wird eine detaillierte Log produziert, der er erlaubt die einzelnen Aktionen nachzuvollziehen
+Während der Algorithmus arbeitet wird ein detailliertes Log produziert, der er erlaubt die einzelnen Aktionen nachzuvollziehen
 
 ###### Beispiel-Log
     04.02.2017 12:32:41 [3] - INFORMATION: Acquire  
@@ -135,5 +134,3 @@ Intern besitzt die Implementierung des LamportMutex eine Semaphore, die es erlau
 Sobald der Server-Thread alle `ACK` Nachrichten erhalten hat und festgestellt hat, dass nun ein Zugriff auf die gemeinsame Ressource möglich ist, weckt er den wartenden Prozess wieder auf und gibt den Zugriff auf die Ressource frei.
 
 Wir möchten an dieser Stelle nochmals hervorheben, dass die verwendeten Semaphore lediglich dazu dient den Prozess so lange zu blockieren, bis der Server-Thread eine Freigabe erhalten hat. Sie dient nicht der Einschränkung des Zugriffs auf die Datei.
-
-
