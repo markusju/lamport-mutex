@@ -1,7 +1,7 @@
-# ava.lamport: Eine Implementierung von Übung 3
+# lamport-mutex: Lamport-Algorithmus für gegenseitigen Ausschluss (Mutex
 Markus Jungbluth
 
-Dieses Dokument enthält Informationen über den Aufbau und die Funktionen von ava.lamport.
+Dieses Dokument enthält Informationen über den Aufbau und die Funktionen von lamport-mutex.
 
 ## Einführung
 Das vorliegende Programm ist eine Implementierung des Lamport-Algorithmus für gegenseitigen Ausschluss (Mutex).  Er erlaubt den wechselseitigen exklusiven Zugriff unabhängiger verteilter Anwendungen auf eine gemeinsame Ressource.
@@ -47,7 +47,7 @@ Wenn der Prozess den Zugriff auf die gemeinsame Ressource nicht mehr benötigt g
     
 ## Implementierung
 ### Getting Started
-*ava.lamport* implementiert den beschriebenen Algorithmus und demonstriert anhand eines Beispiels seine Funktionalität.
+*lamport-mutex* implementiert den beschriebenen Algorithmus und demonstriert anhand eines Beispiels seine Funktionalität.
 
 Das Programm stellt *n* Prozessen den wechselseitigen Zugriff auf eine Datei zur Verfügung. Um zu Verhindern, dass es durch den konkurrierenden Zugriff auf die Datei zu Inkonsistenzen kommt, wird durch den Lamport-Algorithmus geregelt, welches Prozess auf die Datei zugreifen darf und welcher warten muss.
 
@@ -96,7 +96,7 @@ Während der Algorithmus arbeitet wird ein detailliertes Log produziert, der er 
 
 
 ### Protokoll
-ava.lamport greift auf die Protokoll-Implementierung der vorhergehenden Übungen zurück und verwendet ein auf TCP/IP basierendes einfaches ASCII-basiertes Kommunikationsprotokoll.
+lamport-mutex greift auf die Protokoll-Implementierung der vorhergehenden Übungen zurück und verwendet ein auf TCP/IP basierendes einfaches ASCII-basiertes Kommunikationsprotokoll.
 Das verwendete Protokoll wird dabei nur zur unidirektionalen Kommunikation verwendet. Das bedeutet, dass eine sendender Client keine direkte Rückmeldung vom Server über die Ausführung des Kommandos erhält.
 
 #### Methoden
@@ -123,7 +123,7 @@ Weiterhin wird die Lamport-Zeit über einen "TIMESTAMP" Parameter übertragen.
     TIMESTAMP: 12
 
 ### Software-Architektur
-Die Architektur von ava.lamport verfolgt einen stark modularisierten Objekt-orientierten Ansatz. Uns war es wichtig, die Funktion des realisierten Mutex mit Hilfe des Lamport-Algorithmus derart zu kapseln, dass eine Wiederverwendung uns Austauschbarkeit ermöglicht wird.
+Die Architektur von lamport-mutex verfolgt einen stark modularisierten Objekt-orientierten Ansatz. Uns war es wichtig, die Funktion des realisierten Mutex mit Hilfe des Lamport-Algorithmus derart zu kapseln, dass eine Wiederverwendung uns Austauschbarkeit ermöglicht wird.
 
 Die Funktionen zur Modifikation der gemeinsamen Ressource in Form einer Datei wurden in der Klasse `LamportFile` gesammelt. Die Geschäftslogik der Prozesse wurde in der `LamportProcess` Klasse abgebildet. Sie besitzt eine Referenz auf eine Instanz der `LamportFile` Klasse. Die Funktionen zur Realisierung des Lamport Algorithmus wurden in der Klasse `LamportMutex` verankert, welche von jedem Prozess in eigener Instanz verwendet wird.
 
